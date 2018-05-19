@@ -39,5 +39,29 @@ EvtDiskDriverDeviceAdd(
 	{
 		KdPrint(("Queue Create Fail\r\n"));
 	}
+	PDISK_EXTENSION Disk = GetDiskExtension(Device);
+	Disk->cbSize = sizeof(DISK_EXTENSION);
+	Disk->SymbolicName = RTL_CONSTANT_STRING(SYMBLIC);
+	Disk->Image = ExAllocatePoolWithTag(NonPagedPool,Disk->DiskInfo.DiskSize,'Tgz');
+
+	return status;
+}
+
+NTSTATUS 
+FormatDisk(
+	PDISK_EXTENSION Disk
+)
+/*
+描述：格式化目标设备
+参数：目标设备（Disk）
+返回值：
+*/
+{
+	NTSTATUS status = STATUS_SUCCESS;
+	PBOOT_SECTOR sector = (PBOOT_SECTOR)Disk->Image;
+	PAGED_CODE();
+	ASSERT(sizeof(BOOT_SECTOR)==512);
+	ASSERT(Disk->Image!=NULL);
+	RtlZeroMemory(Disk->Image,Disk->DiskInfo.DiskSize);
 	return status;
 }

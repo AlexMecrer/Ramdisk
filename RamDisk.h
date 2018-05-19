@@ -7,10 +7,27 @@
 
 
 #define DEVICENAME L"\\Devices\\RamDisk"
+#define DISKDEFULTSIZE 1024*200
+#define SYMBLIC "Z:"
+
+
+
+typedef struct _DISK_INFO {
+	ULONG   DiskSize;           // Ramdisk size in bytes
+	ULONG   RootDirEntries;     // No. of root directory entries
+	ULONG   SectorsPerCluster;  // Sectors per cluster
+	UNICODE_STRING DriveLetter; // Drive letter to be used
+} DISK_INFO, *PDISK_INFO;
 
 
 typedef struct _DISK_EX{
 	USHORT cbSize;
+	PVOID Image;
+	ULONGLONG ImageSize;
+	DISK_GEOMETRY DiskGeoment;
+	DISK_INFO DiskInfo;
+	UNICODE_STRING SymbolicName;
+
 }DISK_EXTENSION,*PDISK_EXTENSION;
 
 typedef struct Queue_Ex {
@@ -27,6 +44,12 @@ EvtDiskDriverDeviceAdd(
 	WDFDRIVER Driver,
 	PWDFDEVICE_INIT DeviceInit
 );
+
+NTSTATUS
+FormatDisk(
+	PDISK_EXTENSION Disk
+);
+
 
 EVT_WDF_IO_QUEUE_IO_READ RamDiskEvtIoRead;
 EVT_WDF_IO_QUEUE_IO_WRITE RamDiskEvtIoWrite;
