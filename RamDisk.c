@@ -1,5 +1,47 @@
 #include "RamDisk.h"
 
+VOID
+RamDiskEvtIoRead(
+	IN WDFQUEUE Queue,
+	IN WDFREQUEST Request,
+	IN size_t Length
+)
+/*
+
+*/
+{
+	WDF_REQUEST_PARAMETERS Parameters;
+	LARGE_INTEGER byteOffset;
+	PDISK_EXTENSION Disk = GetQueueExtension(Queue);
+	WDFMEMORY hMemory;
+	NTSTATUS status = STATUS_SUCCESS;
+	WDF_REQUEST_PARAMETERS_INIT(&Parameters);
+	WdfRequestGetParameters(Request,&Parameters);
+	status = RamCheckParam(&Parameters);
+	byteOffset.QuadPart = Parameters.Parameters.Read.DeviceOffset;
+	if (NT_SUCCESS(status))
+	{
+		status = WdfRequestRetrieveOutputMemory(Request,&hMemory);
+		if (NT_SUCCESS(status))
+		{
+			status = WdfMemoryCopyFromBuffer(hMemory,0,Disk->DiskImage+
+				byteOffset.QuadPart,Parameters.Parameters.Read.Length);
+		}
+	}
+	WdfRequestCompleteWithInformation(Request,status,Parameters.Parameters.Read.Length);
+	return;
+}
+
+
+
+
+
+
+
+
+
+
+
 NTSTATUS 
 EvtDiskDriverDeviceAdd(
 	WDFDRIVER Driver,
@@ -40,6 +82,8 @@ EvtDiskDriverDeviceAdd(
 		KdPrint(("Queue Create Fail\r\n"));
 	}
 	PDISK_EXTENSION Disk = GetDiskExtension(Device);
+	PQUEUE_EXTENSION queue = GetQueueExtension(Queue);
+	queue->DiskEx = Disk;
 	FormatDisk(Disk);
 	return status;
 }

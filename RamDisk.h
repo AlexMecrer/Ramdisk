@@ -31,7 +31,7 @@ typedef struct _DISK_EX{
 }DISK_EXTENSION,*PDISK_EXTENSION;
 
 typedef struct Queue_Ex {
-	USHORT cbSize;
+	PDISK_EXTENSION DiskEx;
 }QUEUE_EXTENSION,*PQUEUE_EXTENSION;
 
 
@@ -55,7 +55,10 @@ RamDiskQueryDiskRegParameters(
 	__in PWSTR RegistryPath,
 	__in PDISK_INFO DiskRegInfo
 );
-
+NTSTATUS
+RamCheckParam(
+	PWDF_REQUEST_PARAMETERS Check
+);
 
 
 
