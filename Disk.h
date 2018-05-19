@@ -51,3 +51,19 @@ typedef struct  _DIR_ENTRY
 #define DIR_ATTR_VOLUME     0x08
 #define DIR_ATTR_DIRECTORY  0x10
 #define DIR_ATTR_ARCHIVE    0x20
+
+
+#define RAMDISK_TAG                     'DmaR'  // "RamD"
+#define DOS_DEVNAME_LENGTH              (sizeof(DOS_DEVICE_NAME)+sizeof(WCHAR)*10)
+#define DRIVE_LETTER_LENGTH             (sizeof(WCHAR)*10)
+
+#define DRIVE_LETTER_BUFFER_SIZE        10
+#define DOS_DEVNAME_BUFFER_SIZE         (sizeof(DOS_DEVICE_NAME) / 2) + 10
+
+#define RAMDISK_MEDIA_TYPE              0xF8
+#define DIR_ENTRIES_PER_SECTOR          16
+
+#define DEFAULT_DISK_SIZE               (1024*1024)     // 1 MB
+#define DEFAULT_ROOT_DIR_ENTRIES        512
+#define DEFAULT_SECTORS_PER_CLUSTER     2
+#define DEFAULT_DRIVE_LETTER            L"Z:"
