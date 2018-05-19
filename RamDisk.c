@@ -32,14 +32,48 @@ RamDiskEvtIoRead(
 	return;
 }
 
+VOID
+RamDiskEvtIoWrite(
+	IN WDFQUEUE Queue,
+	IN WDFREQUEST Request,
+	IN size_t Length
+)
+/*
+*/
+{
+	WDF_REQUEST_PARAMETERS Param;
+	WDFMEMORY hMemory;
+	PDISK_EXTENSION Disk = GetQueueExtension(Queue)->DiskEx;
+	NTSTATUS status = STATUS_SUCCESS;
+	WDF_REQUEST_PARAMETERS_INIT(&Param);
+	status = RamCheckParam(&Param);
+	WdfRequestGetParameters(Request,&Param);
+	ULONGLONG byteoffset = Param.Parameters.Write.DeviceOffset;
+	if (NT_SUCCESS(status))
+	{
+		status=WdfRequestRetrieveInputMemory(Request,&hMemory);
+		if (NT_SUCCESS(status))
+		{
+			status = WdfMemoryCopyToBuffer(hMemory,0,Disk->DiskImage+byteoffset,Param.Parameters.Write.Length);
+		}
+	}
+	WdfRequestCompleteWithInformation(Request,status,Param.Parameters.Write.Length);
+	return;
+}
 
-
-
-
-
-
-
-
+VOID
+RamDiskEvtIoDeviceControl(
+	WDFQUEUE Queue,
+	WDFREQUEST Request,
+	size_t OutputBufferLength,
+	size_t InputBufferLength,
+	ULONG IoControlCode
+)
+{
+	NTSTATUS status=STATUS_SUCCESS;
+	WdfRequestCompleteWithInformation(Request,status,0);
+	return;
+}
 
 
 NTSTATUS 
@@ -404,4 +438,9 @@ None
 	KdPrint(("SectorsPerCluster = 0x%lx\n", DiskRegInfo->SectorsPerCluster));
 	KdPrint(("DriveLetter       = %wZ\n", &(DiskRegInfo->DriveLetter)));
 	return;
+}
+
+NTSTATUS RamCheckParam(PWDF_REQUEST_PARAMETERS Check)
+{
+	return STATUS_SUCCESS;
 }
