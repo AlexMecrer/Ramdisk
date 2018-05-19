@@ -9,7 +9,8 @@
 #define DEVICENAME L"\\Devices\\RamDisk"
 #define DISKDEFULTSIZE 1024*200
 #define SYMBLIC "Z:"
-
+#define DRIVE_LETTER_BUFFER_SIZE 256
+#define DOS_DEVNAME_BUFFER_SIZE 256
 
 
 typedef struct _DISK_INFO {
@@ -21,13 +22,12 @@ typedef struct _DISK_INFO {
 
 
 typedef struct _DISK_EX{
-	USHORT cbSize;
-	PVOID Image;
-	ULONGLONG ImageSize;
-	DISK_GEOMETRY DiskGeoment;
-	DISK_INFO DiskInfo;
-	UNICODE_STRING SymbolicName;
-
+	PUCHAR              DiskImage;                  // Pointer to beginning of disk image
+	DISK_GEOMETRY       DiskGeometry;               // Drive parameters built by Ramdisk
+	DISK_INFO           DiskRegInfo;                // Disk parameters from the registry
+	UNICODE_STRING      SymbolicLink;               // Dos symbolic name; Drive letter
+	WCHAR               DriveLetterBuffer[DRIVE_LETTER_BUFFER_SIZE];
+	WCHAR               DosDeviceNameBuffer[DOS_DEVNAME_BUFFER_SIZE];
 }DISK_EXTENSION,*PDISK_EXTENSION;
 
 typedef struct Queue_Ex {
@@ -49,6 +49,14 @@ NTSTATUS
 FormatDisk(
 	PDISK_EXTENSION Disk
 );
+
+VOID
+RamDiskQueryDiskRegParameters(
+	__in PWSTR RegistryPath,
+	__in PDISK_INFO DiskRegInfo
+);
+
+
 
 
 EVT_WDF_IO_QUEUE_IO_READ RamDiskEvtIoRead;
